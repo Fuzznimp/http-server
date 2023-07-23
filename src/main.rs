@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::io::prelude::*;
 use std::net::TcpListener;
 use std::net::TcpStream;
@@ -20,8 +21,20 @@ fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
 
-    let response = "HTTP/1.1 200 OK\r\n\r\n";
-    stream.write(response.as_bytes()).unwrap();
+    let request = String::from_utf8_lossy(&buffer);
+    handle_request(request, &mut stream);
 
     stream.flush().unwrap();
+}
+
+fn handle_request(request: Cow<'_, str>, stream: &mut TcpStream) {
+    if request.starts_with("GET /ping HTTP/1.1") {
+        let response = "HTTP/1.1 200 OK\r\n\r\n🏓 pong!\n";
+        stream.write(response.as_bytes()).unwrap();
+        return;
+    }
+
+    let response = "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_owned();
+    stream.write(response.as_bytes()).unwrap();
+    return;
 }
