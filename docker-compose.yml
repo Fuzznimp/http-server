@@ -1,0 +1,5 @@
+services:
+  http-server:
+    image: http-server
+    ports:
+      - 1337:1337

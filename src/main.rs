@@ -4,7 +4,7 @@ use std::net::TcpListener;
 use std::net::TcpStream;
 
 fn main() {
-    const HOST: &str = "127.0.0.1";
+    const HOST: &str = "0.0.0.0";
     const PORT: &str = "1337";
     let end_point: String = HOST.to_owned() + ":" + PORT;
 
@@ -30,6 +30,12 @@ fn handle_connection(mut stream: TcpStream) {
 fn handle_request(request: Cow<'_, str>, stream: &mut TcpStream) {
     if request.starts_with("GET /ping HTTP/1.1") {
         let response = "HTTP/1.1 200 OK\r\n\r\n🏓 pong!\n";
+        stream.write(response.as_bytes()).unwrap();
+        return;
+    }
+
+    if request.starts_with("GET /health HTTP/1.1") {
+        let response = "HTTP/1.1 200 OK\r\n\r\n👍 Healthy!\n";
         stream.write(response.as_bytes()).unwrap();
         return;
     }
